@@ -6,7 +6,6 @@ const session = require('express-session');
 const passport = require('passport');
 const socketio = require("socket.io");
 var AYLIENTextAPI = require('aylien_textapi');
-
 // Aylien Config
 const appId = require('./config/keys').aylienAppId;
 const appKey = require('./config/keys').aylienAppKey;
