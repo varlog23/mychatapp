@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/varunnayak26/mychatapp#readme",
   "dependencies": {
+    "aylien_textapi": "^0.7.0",
     "bcryptjs": "^2.4.3",
     "connect-flash": "^0.1.1",
     "ejs": "^2.6.1",
@@ -26,8 +27,6 @@
     "mongoose": "^5.4.17",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
-    "sentiment": "^5.0.1",
-    "socket.io": "^2.2.0",
-    "aylien_textapi" :"*"
+    "socket.io": "^2.2.0"
   }
 }
