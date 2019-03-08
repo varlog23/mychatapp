@@ -17,9 +17,37 @@
         </form>
     </div>            
 </div>
-
+<script src="/socket.io/socket.io.js"></script>
 <script>
-(function(){
-    console.log('inside chat');
-})();
+    $(()=>{
+        const socket = io.connect();
+        let $messageForm = $('#messageForm');
+        let $message = $('#message');
+        let $chat = $('#chat');
+        let $users = $('#users');
+        var newUser = "<%= user.name %>"; 
+        socket.emit("newUserToServer",newUser);              
+
+        $messageForm.submit((event)=>{
+            event.preventDefault();
+            console.log("Form submitted!");
+
+            const newMsg = $message.val();
+            socket.emit("newMessageToServer",newMsg);
+            $message.val('');
+        });
+
+        socket.on('usersToClients',(data)=>{
+            let html = '';
+            for(i=0;i<data.length;i++){
+                html += `<li class="list-group-item">${data[i]}</li>`
+            }
+            $users.html(html);
+        });        
+
+        socket.on('messageToClients',(data)=>{
+            $chat.append(`<div class="well"><strong>${data.user}</strong>:${data.msg}</div>`);
+        });
+                
+    })
 </script>
