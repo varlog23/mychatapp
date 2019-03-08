@@ -5,6 +5,7 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
 const socketio = require("socket.io");
+const Sentiment = require('sentiment');
 const app = express();
 
 // Passport Config
@@ -61,6 +62,9 @@ console.log('Server running...');
 let users = [];
 let connections = [];
 
+// Instantiate Sentiment instance
+const sentiment = new Sentiment();
+
 mongoose.connect(db, { useNewUrlParser: true })
 .then(() => {
   console.log('MongoDB connected...');
@@ -90,7 +94,8 @@ mongoose.connect(db, { useNewUrlParser: true })
 
     // Send message
     socket.on('newMessageToServer',(data)=>{
-        io.emit("messageToClients",{msg:data, user: socket.username});
+        const sentimentScore = sentiment.analyze(data).score;
+        io.emit("messageToClients",{msg:data, user: socket.username, sentiment: sentimentScore});
     });
   
   });  
