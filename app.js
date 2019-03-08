@@ -5,7 +5,18 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
 const socketio = require("socket.io");
-const Sentiment = require('sentiment');
+var AYLIENTextAPI = require('aylien_textapi');
+
+// Aylien Config
+const appId = require('./config/keys').aylienAppId;
+const appKey = require('./config/keys').aylienAppKey;
+
+// Create AYLIENTextAPI instace using AYLIEN credentials
+var textapi = new AYLIENTextAPI({
+  application_id: appId,
+  application_key: appKey
+});
+
 const app = express();
 
 // Passport Config
@@ -62,9 +73,6 @@ console.log('Server running...');
 let users = [];
 let connections = [];
 
-// Instantiate Sentiment instance
-const sentiment = new Sentiment();
-
 mongoose.connect(db, { useNewUrlParser: true })
 .then(() => {
   console.log('MongoDB connected...');
@@ -94,8 +102,14 @@ mongoose.connect(db, { useNewUrlParser: true })
 
     // Send message
     socket.on('newMessageToServer',(data)=>{
-        const sentimentScore = sentiment.analyze(data).score;
-        io.emit("messageToClients",{msg:data, user: socket.username, sentiment: sentimentScore});
+        textapi.sentiment(data, function(err, resp) {
+          if (err !== null) {
+            console.log("Error: " + err);
+            io.emit("messageToClients",{msg:data, user: socket.username, sentiment: "neutral"});
+          } else {
+            io.emit("messageToClients",{msg:data, user: socket.username, sentiment: resp.polarity});
+          }
+        });
     });
   
   });  
