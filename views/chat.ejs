@@ -41,23 +41,25 @@
         const HAPPY_EMOJI = [55357, 56898];
         const NEUTRAL_EMOJI = [55357, 56848];
         
-        $messageForm.submit((event)=>{
+        function handleSendingMessage(event){
             event.preventDefault();
             console.log("Form submitted!");
-
             const newMsg = $message.val();
-            socket.emit("newMessageToServer",newMsg);
-            $message.val('');
+            if(newMsg){
+                socket.emit("newMessageToServer",newMsg);
+                $message.val('');
+            }
+        }
+
+        $messageForm.submit((event)=>{
+            handleSendingMessage(event);
         });
 
         $message.keypress(function(event){
             if(event.which === 13 && event.shiftKey == false){
-                console.log("Form submitted!");
-                const newMsg = $message.val();
-                socket.emit("newMessageToServer",newMsg);
-                $message.val('');
+                handleSendingMessage(event);
             }
-        });        
+        });       
 
         socket.on('usersToClients',(data)=>{
             let html = '';
