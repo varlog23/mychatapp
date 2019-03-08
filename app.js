@@ -5,7 +5,7 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
 const socketio = require("socket.io");
-
+const Sentiment = require('sentiment');
 const app = express();
 
 // Passport Config
@@ -63,11 +63,7 @@ let users = [];
 let connections = [];
 
 // Instantiate Sentiment instance
-var AYLIENTextAPI = require('aylien_textapi');
-var textapi = new AYLIENTextAPI({
-  application_id:"55e4d5dd",
-  application_key: "f62afb04f36293868458419356324b6d"
-});
+const sentiment = new Sentiment();
 
 mongoose.connect(db, { useNewUrlParser: true })
 .then(() => {
@@ -98,13 +94,8 @@ mongoose.connect(db, { useNewUrlParser: true })
 
     // Send message
     socket.on('newMessageToServer',(data)=>{
-      textapi.sentiment({'text': data, (err, resp) => {
-          if (err !== null) {
-            console.log("Error: " + err);
-          } else {
-            io.emit("messageToClients",{msg:data, user: socket.username, sentiment: resp.polarity});
-          }
-        });
+        const sentimentScore = sentiment.analyze(data).score;
+        io.emit("messageToClients",{msg:data, user: socket.username, sentiment: sentimentScore});
     });
   
   });  
