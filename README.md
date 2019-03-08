@@ -10,6 +10,8 @@ $ npm start
 ```
 Application is deployed at https://myuchat.herokuapp.com
 
+---
+
 Database : MongoDB Atlas
 
 Sentiment analysis : Aylien Text Analysis SDK
@@ -18,6 +20,7 @@ Templating language : EJS
 
 User authentication middleware : Passport
 
+---
 
 References :-
 
