@@ -1,5 +1,21 @@
 # mychatapp
-Realtime chat application(single channel) with emotion detection
+Socket.IO based Realtime chat application(single channel) with emotion detection
 
+Usage :
+```
+$ npm install
+```
+```
+$ npm start
+```
+Application is deployed at https://myuchat.herokuapp.com
 
-Deployed at https://myuchat.herokuapp.com
+Database : MongoDB Atlas
+Sentiment analysis : Aylien Text Analysis SDK
+
+References :-
+https://www.youtube.com/watch?v=tHbCkikFfDE&t=899s
+
+https://www.youtube.com/watch?v=6FOq4cUdH8k
+
+http://blog.aylien.com/getting-started-with-ayliens-text-analysis-sdk-2/
