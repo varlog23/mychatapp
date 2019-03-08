@@ -2,7 +2,7 @@
     <div class="col-md-3">
     </div>
     <div class="col-md-4 text-right">
-        <h2>MYCHAT</h2>
+        <h2>MYUCHAT</h2>
     </div>
     <div class="col-md-4 text-right">
         <a href="/users/logout" class="btn btn-secondary" type="submit">Logout</a>
@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="col-md-8 my-2">
-        <div id="chat" class="list-group" style="height: 400px; overflow-y: auto;"></div>
+        <div id="chat" class="list-group" style="height: 80vh; overflow-y: auto;"></div>
         <form id="messageForm">
             <div class="form-group my-2">
                 <label for="message">Enter message</label>
@@ -70,6 +70,7 @@
         socket.on('messageToClients',(data)=>{
             const mood = data.sentiment > 0 ? HAPPY_EMOJI : (chat.sentiment === 0 ? NEUTRAL_EMOJI : SAD_EMOJI);
             $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small id="emoji1">${String.fromCharCode(mood[0], mood[1])}</small></div><p class="mb-1">${data.msg}</p></div>`);
+            $chat.scrollTop($chat[0].scrollHeight);
         });
                 
     })
