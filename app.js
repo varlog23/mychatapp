@@ -5,7 +5,9 @@ const flash = require('connect-flash');
 const session = require('express-session');
 const passport = require('passport');
 const socketio = require("socket.io");
-var AYLIENTextAPI = require('aylien_textapi');
+const AYLIENTextAPI = require('aylien_textapi');
+const PORT = process.env.PORT || 4021;
+
 // Aylien Config
 const appId = require('./config/keys').aylienAppId;
 const appKey = require('./config/keys').aylienAppKey;
@@ -24,8 +26,8 @@ require('./config/passport')(passport);
 // DB Config
 const db = require('./config/keys').mongoURI;
 
-// Use for testing locally
-//const db = 'mongodb://localhost:27017/User';
+// Used for testing locally
+//const db = 'mongodb://localhost:27017/test';
 
 // To use EJS
 app.use(expresLayouts);
@@ -62,8 +64,6 @@ app.use((req, res, next) => {
 app.use('/', require('./routes/index'))
 app.use('/users', require('./routes/users'))
 
-const PORT = process.env.PORT || 4021;
-
 const expressServer = app.listen(PORT, console.log(`Server started on port ${PORT}`));
 //Socket server is listining to http server
 const io = socketio(expressServer);
@@ -80,14 +80,14 @@ mongoose.connect(db, { useNewUrlParser: true })
     connections.push(socket);
     console.log('Connected: %s sockets connected',connections.length);
 
-    // Send message
+    // When user logs in
     socket.on('newUserToServer',(data)=>{
       socket.username = data;
       users.push(socket.username);
       updateUserNames();
     });
 
-    // Disconnect
+    // When user logs out or disconnects
     socket.on('disconnect',(data)=>{
       users.splice(users.indexOf(socket.username),1);
       updateUserNames();
@@ -95,11 +95,12 @@ mongoose.connect(db, { useNewUrlParser: true })
       console.log('Disconnected: %s sockets connected',connections.length);
     });
 
+    // Send list of users to all clients
     function updateUserNames(){
         io.emit("usersToClients",users);
     }    
 
-    // Send message
+    // Handle text message from client
     socket.on('newMessageToServer',(data)=>{
       textapi.sentiment({
         'text': data
@@ -107,15 +108,18 @@ mongoose.connect(db, { useNewUrlParser: true })
           if (error !== null) {
             console.log("Error: " + error);
             io.emit("messageToClients",{msg:data, user: socket.username, sentiment: "neutral"});
+            socket.emit('status', {message: 'Message sent'});
           } else {
             io.emit("messageToClients",{msg:data, user: socket.username, sentiment: response.polarity});
+            socket.emit('status', {message: 'Message sent'});
           }
         });
     });
 
-    // Send message
+    // Handle video message from client
     socket.on('newVideoToServer',(data)=>{
       io.emit("videoToClients",{msg:data, user: socket.username});
+      socket.emit('status', {message: 'Message sent'});
     });    
   
   });  

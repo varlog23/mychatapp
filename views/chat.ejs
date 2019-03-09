@@ -36,7 +36,7 @@
                 <div id="camarea" style="display:none;">
                     <% include vidindex %>
                 </div>
-                <input class="btn btn-primary my-2" type="submit" value="Send"/>               
+                <input class="btn btn-primary my-2" type="submit" value="Send"/><span id="status" class="text-success mx-2"></span>               
             </div> 
             <div class="custom-control custom-switch">
                 <input type="checkbox" class="custom-control-input" id="camToggler"/>
@@ -49,28 +49,48 @@
 <script>
     $(()=>{
         const socket = io.connect();
+        var $status = $('#status');
         let $messageForm = $('#messageForm');
         let $message = $('#message');
         let $chat = $('#chat');
         let $users = $('#users');
         var newUser = "<%= user.name %>"; 
         socket.emit("newUserToServer",newUser);
-          
+         
+        // Decimal code points for Emojis
         const SAD_EMOJI = [9785, 65039];
         const HAPPY_EMOJI = [55357, 56898];
         const NEUTRAL_EMOJI = [55357, 56848];
+
+        // Set default status
+        var statusDefault = $status.text();
+
+        // Function to set status message
+        function setStatus(s){
+            $status.text(s);
+            if(s !== statusDefault){
+                var delay = setTimeout(function(){
+                    setStatus(statusDefault);
+                }, 2000);
+            }
+        }
         
+        // Function to handle sending message
         function handleSendingMessage(event){
             event.preventDefault();
-            console.log("Form submitted!");
+            //console.log("Form submitted!");
+            // If toggle is set video and if video is recorded, send video as Blob
             if ($('#camToggler').prop("checked")) {
                 if(player.recordedData){
-                    //console.log(player.recordedData);
                     recordedBlob = player.recordedData
                     socket.emit("newVideoToServer",recordedBlob);
+                    // Reset the player interface and recorder state.
+                    player.record().reset();
+                    player.recordedData = null;
                 }
             }
-            else{
+            else
+            {
                 const newMsg = $message.val();
                 if(newMsg){
                     socket.emit("newMessageToServer",newMsg);
@@ -78,17 +98,20 @@
                 }
             }
         }
-
+        
+        // Handle form submit
         $messageForm.submit((event)=>{
             handleSendingMessage(event);
         });
 
+        // Handle enter key on textarea to submit form
         $message.keypress(function(event){
             if(event.which === 13 && event.shiftKey == false){
                 handleSendingMessage(event);
             }
         });       
 
+        // Update users list
         socket.on('usersToClients',(data)=>{
             let html = '';
             for(i=0;i<data.length;i++){
@@ -97,19 +120,28 @@
             $users.html(html);
         });        
 
+        // Update message list with text
         socket.on('messageToClients',(data)=>{
             const mood = data.sentiment === 'positive' ? HAPPY_EMOJI : (data.sentiment === 'negative' ? SAD_EMOJI: NEUTRAL_EMOJI);
             $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small>${String.fromCharCode(mood[0], mood[1])}</small></div><p class="mb-1">${data.msg}</p></div>`);
             $chat.scrollTop($chat[0].scrollHeight);
         });
 
+        // Update message list with video
         socket.on('videoToClients',(data)=>{
             const blobdata = new Blob([new Uint8Array(data.msg)]);
             //recording.src = URL.createObjectURL(blobdata);
             $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small></small></div><video src=${URL.createObjectURL(blobdata)} width="160" height="120" controls></video></div>`);
             $chat.scrollTop($chat[0].scrollHeight);
-        });        
+        });
+        
+        // Get Status From Server
+        socket.on('status', function(data){
+            // get message status
+            setStatus(data.message);
+        });
 
+        // Toggler functionality
         $('#camToggler').change(()=>{
             if ($('#camToggler').prop("checked")) {
                 $("#messagearea").hide();
