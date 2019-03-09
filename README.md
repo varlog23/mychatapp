@@ -20,6 +20,8 @@ Templating language : EJS
 
 User authentication middleware : Passport
 
+Video Recording : Video.js Record
+
 ---
 
 References :-
@@ -31,3 +33,6 @@ https://www.youtube.com/watch?v=6FOq4cUdH8k
 http://blog.aylien.com/getting-started-with-ayliens-text-analysis-sdk-2/
 
 http://www.passportjs.org/docs/
+
+https://github.com/collab-project/videojs-record
+
