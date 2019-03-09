@@ -26,12 +26,21 @@
         </div>
     </div>
     <div class="col-md-8 my-2">
-        <div id="chat" class="list-group" style="height: 60vh; overflow-y: auto;"></div>
-        <form id="messageForm">
-            <div class="form-group my-2">
-                <label for="message">Enter message</label>
-                <textarea class="form-control" id="message" rows="3"></textarea>
-                <input class="btn btn-primary my-2" type="submit" value="Send"/>
+        <div id="chat" class="list-group" style="height: 50vh; overflow-y: auto;"></div>
+        <form id="messageForm" class="my-2">
+            <div class="form-group" style="height:170px;">
+                <div id="messagearea" style="height:130px;">
+                    <label for="message" class="form-group  my-2">Enter message</label>
+                    <textarea class="form-control" id="message" rows="3"></textarea>
+                </div>
+                <div id="camarea" style="display:none;">
+                    <% include vidindex %>
+                </div>
+                <input class="btn btn-primary my-2" type="submit" value="Send"/>               
+            </div> 
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="camToggler"/>
+                <label class="custom-control-label" for="camToggler">Toggle to record video</label>
             </div>   
         </form>             
     </div>
@@ -46,7 +55,7 @@
         let $users = $('#users');
         var newUser = "<%= user.name %>"; 
         socket.emit("newUserToServer",newUser);
-        
+          
         const SAD_EMOJI = [9785, 65039];
         const HAPPY_EMOJI = [55357, 56898];
         const NEUTRAL_EMOJI = [55357, 56848];
@@ -54,10 +63,19 @@
         function handleSendingMessage(event){
             event.preventDefault();
             console.log("Form submitted!");
-            const newMsg = $message.val();
-            if(newMsg){
-                socket.emit("newMessageToServer",newMsg);
-                $message.val('');
+            if ($('#camToggler').prop("checked")) {
+                if(player.recordedData){
+                    //console.log(player.recordedData);
+                    recordedBlob = player.recordedData
+                    socket.emit("newVideoToServer",recordedBlob);
+                }
+            }
+            else{
+                const newMsg = $message.val();
+                if(newMsg){
+                    socket.emit("newMessageToServer",newMsg);
+                    $message.val('');
+                }
             }
         }
 
@@ -81,8 +99,25 @@
 
         socket.on('messageToClients',(data)=>{
             const mood = data.sentiment === 'positive' ? HAPPY_EMOJI : (data.sentiment === 'negative' ? SAD_EMOJI: NEUTRAL_EMOJI);
-            $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small id="emoji1">${String.fromCharCode(mood[0], mood[1])}</small></div><p class="mb-1">${data.msg}</p></div>`);
+            $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small>${String.fromCharCode(mood[0], mood[1])}</small></div><p class="mb-1">${data.msg}</p></div>`);
             $chat.scrollTop($chat[0].scrollHeight);
+        });
+
+        socket.on('videoToClients',(data)=>{
+            const blobdata = new Blob([new Uint8Array(data.msg)]);
+            //recording.src = URL.createObjectURL(blobdata);
+            $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small></small></div><video src=${URL.createObjectURL(blobdata)} width="160" height="120" controls></video></div>`);
+            $chat.scrollTop($chat[0].scrollHeight);
+        });        
+
+        $('#camToggler').change(()=>{
+            if ($('#camToggler').prop("checked")) {
+                $("#messagearea").hide();
+                $("#camarea").show();
+            } else {
+                $("#messagearea").show();
+                $("#camarea").hide();
+            }
         });
                 
     })

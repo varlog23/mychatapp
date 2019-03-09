@@ -101,15 +101,22 @@ mongoose.connect(db, { useNewUrlParser: true })
 
     // Send message
     socket.on('newMessageToServer',(data)=>{
-        textapi.sentiment(data, function(err, resp) {
-          if (err !== null) {
-            console.log("Error: " + err);
+      textapi.sentiment({
+        'text': data
+          }, function(error, response) {
+          if (error !== null) {
+            console.log("Error: " + error);
             io.emit("messageToClients",{msg:data, user: socket.username, sentiment: "neutral"});
           } else {
-            io.emit("messageToClients",{msg:data, user: socket.username, sentiment: resp.polarity});
+            io.emit("messageToClients",{msg:data, user: socket.username, sentiment: response.polarity});
           }
         });
     });
+
+    // Send message
+    socket.on('newVideoToServer',(data)=>{
+      io.emit("videoToClients",{msg:data, user: socket.username});
+    });    
   
   });  
 })
