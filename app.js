@@ -6,6 +6,7 @@ const session = require('express-session');
 const passport = require('passport');
 const socketio = require("socket.io");
 const AYLIENTextAPI = require('aylien_textapi');
+const ss = require('socket.io-stream');
 const PORT = process.env.PORT || 4021;
 
 // Aylien Config
@@ -80,6 +81,23 @@ mongoose.connect(db, { useNewUrlParser: true })
     connections.push(socket);
     console.log('Connected: %s sockets connected',connections.length);
 
+    // Handle video message from client with stream
+    ss(socket).on('file', function(stream, data) { 
+      console.log('inside one');
+        parts = []
+        stream.on('data', function(chunk){
+          parts.push(chunk);
+        });        
+        stream.on('end', function () {
+          console.log('file received');
+          //console.log(parts)
+          let buf = Buffer.concat(parts);
+          //console.log(buf);
+          io.emit("videoToClients",{msg:buf, user: socket.username});
+          socket.emit('status', {message: 'Message sent'});
+        });
+    });
+
     // When user logs in
     socket.on('newUserToServer',(data)=>{
       socket.username = data;
@@ -116,7 +134,7 @@ mongoose.connect(db, { useNewUrlParser: true })
         });
     });
 
-    // Handle video message from client
+    // Handle video message from client /* no longer used */
     socket.on('newVideoToServer',(data)=>{
       io.emit("videoToClients",{msg:data, user: socket.username});
       socket.emit('status', {message: 'Message sent'});
