@@ -58,9 +58,6 @@
         const newUser = "<%= user.name %>"; 
         socket.emit("newUserToServer",newUser);
         
-        // Create io.stream instance
-        const stream = ss.createStream()
-
         // Decimal code points for Emojis
         const SAD_EMOJI = [9785, 65039];
         const HAPPY_EMOJI = [55357, 56898];
@@ -87,7 +84,8 @@
             if ($('#camToggler').prop("checked")) {
                 if(player.recordedData){
                     recordedBlob = player.recordedData
-
+                    // Create new io.stream instance
+                    let stream = ss.createStream()
                      // upload file to the server.
                     ss(socket).emit('file', stream, {size: recordedBlob.size});
                     const blobStream = ss.createBlobReadStream(recordedBlob);
