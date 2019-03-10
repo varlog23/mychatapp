@@ -1,5 +1,11 @@
 # mychatapp
-Socket.IO based Realtime chat application(single channel) with emotion detection
+Socket.IO based Realtime chat application(single channel) with emotion detection.
+
+Has video sharing capability.
+
+Does not save chat data on database for privacy reasons.
+
+---
 
 Usage :
 ```
@@ -22,6 +28,8 @@ User authentication middleware : Passport
 
 Video Recording : Video.js Record
 
+Streaming : socket.io-stream
+
 ---
 
 References :-
@@ -35,4 +43,6 @@ http://blog.aylien.com/getting-started-with-ayliens-text-analysis-sdk-2/
 http://www.passportjs.org/docs/
 
 https://github.com/collab-project/videojs-record
+
+https://www.npmjs.com/package/socket.io-stream
 
