@@ -136,7 +136,8 @@ $(function() {
         socket.on('usersToClients',function(data){
             let html = '';
             for(i=0;i<data.length;i++){
-                html += `<li class="list-group-item">${data[i]}</li>`
+                //html += `<li class="list-group-item">${data[i]}</li>` /* Template literals are not supported by IE11 */
+                html += "<li class=\"list-group-item\">".concat(data[i], "</li>");
             }
             $users.html(html);
         });        
@@ -144,7 +145,9 @@ $(function() {
         // Update message list with text
         socket.on('messageToClients',function(data){
             const mood = data.sentiment === 'positive' ? HAPPY_EMOJI : (data.sentiment === 'negative' ? SAD_EMOJI: NEUTRAL_EMOJI);
-            $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small>${String.fromCharCode(mood[0], mood[1])}</small></div><p class="mb-1">${data.msg}</p></div>`);
+            /* Template literals are not supported by IE11 */
+            //$chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small>${String.fromCharCode(mood[0], mood[1])}</small></div><p class="mb-1">${data.msg}</p></div>`);
+            $chat.append("<div class=\"list-group-item list-group-item-action flex-column align-items-start mb-1\" style=\"max-width: 46rem;\"><div class=\"d-flex w-100 justify-content-between\"><h5 class=\"mb-1\">".concat(data.user, "</h5><small>").concat(String.fromCharCode(mood[0], mood[1]), "</small></div><p class=\"mb-1\">").concat(data.msg, "</p></div>"));
             $chat.scrollTop($chat[0].scrollHeight);
         });
 
@@ -152,7 +155,9 @@ $(function() {
         socket.on('videoToClients',function(data){
             const blobdata = new Blob([new Uint8Array(data.msg)]);
             //recording.src = URL.createObjectURL(blobdata);
-            $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small></small></div><video src=${URL.createObjectURL(blobdata)} width="160" height="120" controls></video></div>`);
+            /* Template literals are not supported by IE11 */
+            //$chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small></small></div><video src=${URL.createObjectURL(blobdata)} width="160" height="120" controls></video></div>`);
+            $chat.append("<div class=\"list-group-item list-group-item-action flex-column align-items-start mb-1\" style=\"max-width: 46rem;\"><div class=\"d-flex w-100 justify-content-between\"><h5 class=\"mb-1\">".concat(data.user, "</h5><small></small></div><video src=").concat(URL.createObjectURL(blobdata), " width=\"160\" height=\"120\" controls></video></div>"));
             $chat.scrollTop($chat[0].scrollHeight);
         });
         
