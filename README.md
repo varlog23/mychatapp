@@ -26,7 +26,7 @@ Templating language : EJS
 
 User authentication middleware : Passport
 
-Video Recording : Video.js Record
+Video Recording : Video.js Record (Video Not supported by Microsoft Edge)
 
 Streaming : socket.io-stream
 
