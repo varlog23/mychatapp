@@ -48,7 +48,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io-stream/0.9.1/socket.io-stream.min.js"></script>
 <script>
-    $(()=>{
+$(function() {
         const socket = io.connect();
         const $status = $('#status');
         let $messageForm = $('#messageForm');
@@ -96,7 +96,7 @@
                         //console.log(Math.floor(size / recordedBlob.size * 100) + '%');
                         setStatus('Sending '+Math.floor(size / recordedBlob.size * 100) + '%');
                     });
-                    blobStream.on('end' , ()=> {
+                    blobStream.on('end' , function() {
                         setStatus('Complete');
                     });                    
                     
@@ -121,7 +121,7 @@
         }
         
         // Handle form submit
-        $messageForm.submit((event)=>{
+        $messageForm.submit(function(event){
             handleSendingMessage(event);
         });
 
@@ -133,7 +133,7 @@
         });       
 
         // Update users list
-        socket.on('usersToClients',(data)=>{
+        socket.on('usersToClients',function(data){
             let html = '';
             for(i=0;i<data.length;i++){
                 html += `<li class="list-group-item">${data[i]}</li>`
@@ -142,14 +142,14 @@
         });        
 
         // Update message list with text
-        socket.on('messageToClients',(data)=>{
+        socket.on('messageToClients',function(data){
             const mood = data.sentiment === 'positive' ? HAPPY_EMOJI : (data.sentiment === 'negative' ? SAD_EMOJI: NEUTRAL_EMOJI);
             $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small>${String.fromCharCode(mood[0], mood[1])}</small></div><p class="mb-1">${data.msg}</p></div>`);
             $chat.scrollTop($chat[0].scrollHeight);
         });
 
         // Update message list with video
-        socket.on('videoToClients',(data)=>{
+        socket.on('videoToClients',function(data){
             const blobdata = new Blob([new Uint8Array(data.msg)]);
             //recording.src = URL.createObjectURL(blobdata);
             $chat.append(`<div class="list-group-item list-group-item-action flex-column align-items-start mb-1" style="max-width: 46rem;"><div class="d-flex w-100 justify-content-between"><h5 class="mb-1">${data.user}</h5><small></small></div><video src=${URL.createObjectURL(blobdata)} width="160" height="120" controls></video></div>`);
@@ -163,7 +163,7 @@
         });
 
         // Toggler functionality
-        $('#camToggler').change(()=>{
+        $('#camToggler').change(function(){
             if ($('#camToggler').prop("checked")) {
                 $("#messagearea").hide();
                 $("#camarea").show();
